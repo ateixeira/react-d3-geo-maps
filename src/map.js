@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { geoMercator, geoPath  } from 'd3-geo';
+import usGeoData from './states.geo';
 
 class Map extends Component {
     constructor(props) {
@@ -23,10 +25,29 @@ class Map extends Component {
     }
 
     render() {
+        const { height, width } = this.state.mapSize;
+
+        const projection = geoMercator()
+            .scale(width * 0.9)
+            .translate([width / 2, height / 2])
+            .center([-98.35, 39.5])
+  
+        const pathGenerator = geoPath().projection(projection);
+        
+        const states = usGeoData.features
+            .map((feature, idx) => {
+                const fakeData = Math.random();
+                return <path
+                    key={"path" + idx}
+                    d={pathGenerator(feature)}
+                    style={{ fill: "#dedede", fillOpacity: fakeData, stroke: "black", strokeWidth: 2, strokeOpacity: 1, cursor: "pointer" }}
+                    className="states"
+            />})
+
         return (
             <div className='map'>
-                <svg ref={(mapSVG) => this.mapSVG = mapSVG}>
-                    <path />
+                <svg width={'100%'} height={'100%'} ref={(mapSVG) => this.mapSVG = mapSVG}>
+                    {states}
                 </svg>
             </div>
         )
